@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Мой простой сайт</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Добавляем это для блокировки скроллинга */
+    }
+
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .navbar {
+      background-color: #333;
+      width: 0;
+      overflow: hidden;
+      transition: width 0.3s;
+    }
+
+    .navbar a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      background-color: black;
+      transition: background-color 0.3s, font-size 0.3s;
+    }
+
+    .navbar a:hover {
+      background-color: #555;
+      font-size: 115%;
+      border: 1px solid white;
+      padding: 13px 15px;
+    }
+
+    .menu-icon {
+      float: left;
+      cursor: pointer;
+      padding: 14px 16px;
+      position: relative;
+      display: inline-block;
+      margin: 20px 20px;
+    }
+
+    .menu-icon img {
+      width: 30px;
+      height: 30px;
+      transition: transform 0.3s;
+    }
+
+    .menu-icon:hover img {
+      transform: scale(1.15);
+    }
+
+    .menu-icon:hover {
+      outline: 1px solid white;
+    }
+
+    .loading-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: black;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-text {
+      font-size: 3em;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .loading-bar {
+      width: 400px;
+      height: 30px;
+      background-color: black;
+      border: 1px solid white;
+      padding: 3px 1.5px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+    }
+
+    .loading-progress {
+      height: 100%;
+      margin: 3px 1.5px;
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-text">LOADING</div>
+    <div class="loading-bar" id="loadingBar">
+      <div class="loading-progress" id="loadingProgress"></div>
+    </div>
+  </div>
+
+  <div class="menu-icon" onclick="toggleMenu()">
+    <img src="images/menu-icon2.png" alt="Меню">
+  </div>
+  <div class="navbar" id="navbar">
+    <a href="index.html" onmouseover="playHoverSound()" onclick="playClickSound()">Главная</a>
+    <a href="faq.html" onmouseover="playHoverSound()" onclick="playClickSound()">FAQ</a>
+    <a href="contacts.html" onmouseover="playHoverSound()" onclick="playClickSound()">Контакты</a>
+  </div>
+  <div class="container">
+    <h1>Добро пожаловать на мой сайт</h1>
+    <p>Это простой сайт с черным фоном.</p>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      var navbar = document.getElementById("navbar");
+      if (navbar.style.width === "200px") {
+        navbar.style.width = "0";
+        document.body.style.overflow = "hidden"; /* Добавляем это для блокировки скроллинга */
+      } else {
+        navbar.style.width = "200px";
+        document.body.style.overflow = "visible"; /* Восстанавливаем скроллинг */
+      }
+    }
+
+    function playHoverSound() {
+      // Подставьте правильные пути к звуковым файлам
+      var audio = new Audio('sounds/choose.mp3');
+      audio.play();
+    }
+
+    function playClickSound() {
+      // Подставьте правильные пути к звуковым файлам
+      var audio = new Audio('sounds/click.mp3');
+      audio.play();
+    }
+
+    window.onload = function () {
+      var loadingScreen = document.getElementById('loadingScreen');
+      var loadingProgress = document.getElementById('loadingProgress');
+      var links = document.querySelectorAll('.navbar a');
+
+      links.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+          event.preventDefault();
+          loadingScreen.style.opacity = '1';
+          loadingScreen.style.display = 'flex';
+          setTimeout(function () {
+            loadingScreen.style.opacity = '0';
+            setTimeout(function () {
+              animatePageTransition(link.href);
+            }, 1000);
+          }, 1000);
+        });
+      });
+    };
+
+    function animatePageTransition(destinationURL) {
+      var currentPage = document.body;
+      var loadingScreen = document.getElementById('loadingScreen');
+      var loadingProgress = document.getElementById('loadingProgress');
+
+      var loadingDuration = Math.floor(Math.random() * 3000) + 4000;
+      var startTime = Date.now();
+
+      currentPage.style.opacity = '0';
+
+      loadingScreen.style.opacity = '1';
+
+      var loadingInterval = setInterval(function () {
+        var currentTime = Date.now() - startTime;
+        var progress = (currentTime / loadingDuration) * 100;
+
+        if (progress > 100) {
+          clearInterval(loadingInterval);
+
+          var fadeOutLoadingInterval = setInterval(function () {
+            var currentTime = Date.now() - startTime;
+            var opacity = 1 - (currentTime / 1000);
+
+            if (opacity <= 0) {
+              clearInterval(fadeOutLoadingInterval);
+              loadingScreen.style.display = 'none';
+              currentPage.style.opacity = '1';
+              window.location.href = destinationURL;
+            } else {
+              loadingScreen.style.opacity = opacity;
+            }
+          }, 10);
+        } else {
+          loadingProgress.style.width = progress + '%';
+        }
+      }, 50);
+    }
+  </script>
+</body>
+</html>
